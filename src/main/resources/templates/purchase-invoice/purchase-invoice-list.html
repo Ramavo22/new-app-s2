@@ -14,6 +14,8 @@
 <!-- Content -->
 <div class="container mt-5">
     <p class="h1">Purchase Invoice List</p>
+    <p th:if="${error}" th:text="${error}" class="alert alert-danger"></p>
+    <p th:if="${message}" th:text="${message}" class="alert alert-success"></p>
     <table class="table table-bordered">
         <tr>
             <th scope="col">references</th>
@@ -32,8 +34,8 @@
             <td th:text="${purchase_invoice.net_total}"></td>
             <td th:text="${purchase_invoice.status}"></td>
             <td th:switch="${purchase_invoice.status}">
-                <button th:case="Paid" disabled class="btn btn-success">Paid</button>
-                <button th:case="*" class="btn btn-primary">Pay</button>
+                <a th:case="Paid" disabled class="btn btn-success">Paid</a>
+                <a th:case="*" th:href="@{/purchase-invoice/{ref}/validation(ref=${purchase_invoice.name})}" class="btn btn-primary">Pay</a>
             </td>
         </tr>
     </table>
