@@ -1,6 +1,7 @@
 package mg.itu.newapp.utils;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import mg.itu.newapp.utils.frappe.FrappeResponse;
 import mg.itu.newapp.utils.frappe.FrappeResponseWrapper;
@@ -13,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
+import java.util.HashMap;
 import java.util.Map;
 
 @Component
@@ -45,6 +47,8 @@ public class ApiUtils {
         return restTemplate.exchange(url, method, entity, responseType);
     }
 
+
+
     public <T> FrappeResponse<T> bodyMessageToFrappeResponse(ResponseEntity<String> response, TypeReference<FrappeResponseWrapper<T>> typeRef) {
         try {
             FrappeResponseWrapper<T> wrapper = objectMapper.readValue(response.getBody(), typeRef);
@@ -52,6 +56,13 @@ public class ApiUtils {
         } catch (Exception e) {
             throw new RuntimeException("Erreur lors du parsing de la réponse Frappe", e);
         }
+    }
+
+
+    public Map<String, String> getHeadersMap(String sid) {
+        Map<String, String> headersMap = new HashMap<>();
+        headersMap.put("Cookie",sid);
+        return headersMap;
     }
 
 }

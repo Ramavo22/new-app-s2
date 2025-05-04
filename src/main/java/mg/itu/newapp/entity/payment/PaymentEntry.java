@@ -1,5 +1,6 @@
 package mg.itu.newapp.entity.payment;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -10,7 +11,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Data
-
+@JsonIgnoreProperties(ignoreUnknown = true)
+@NoArgsConstructor
 public class PaymentEntry {
     String name;
     String payment_type;
@@ -53,6 +55,8 @@ public class PaymentEntry {
 
 
     @Data
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    @NoArgsConstructor
     public static class References{
         String reference_doctype;
         String reference_name;

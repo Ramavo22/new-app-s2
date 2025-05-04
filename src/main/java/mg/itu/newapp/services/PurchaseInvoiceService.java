@@ -25,7 +25,7 @@ public class PurchaseInvoiceService {
         Map<String, String> headers = new HashMap<String, String>();
         headers.put("Cookie", FrappeCookie);
 
-        String endPoint ="http://evals2.com:8000/api/method/erpnext.accounts.doctype.purchase_invoice.purchase_invoice_api.getListPurchaseInvoiceByName?name="+name;
+        String endPoint ="/api/method/erpnext.accounts.doctype.purchase_invoice.purchase_invoice_api.getListPurchaseInvoiceByName?name="+name;
         ResponseEntity<String> response = apiUtils.call(
                 endPoint,
                 HttpMethod.GET,
@@ -38,4 +38,6 @@ public class PurchaseInvoiceService {
         FrappeResponse<PurchaseInvoice> frappeResponse = apiUtils.bodyMessageToFrappeResponse(response, typeRef);
         return frappeResponse.getData();
     }
+
+
 }
