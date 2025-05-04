@@ -1,0 +1,44 @@
+<style>
+    .hamburger {
+        width: 30px;
+        cursor: pointer;
+        margin: 20px;
+        z-index: 1051;
+    }
+
+    .hamburger span {
+        display: block;
+        height: 4px;
+        background-color: #333;
+        margin: 6px 0;
+        transition: all 0.3s ease;
+    }
+
+    .offcanvas-start {
+        width: 250px;
+    }
+
+    .hamburger:hover span {
+        background-color: #007bff;
+    }
+</style>
+<!-- Custom Hamburger -->
+<div class="hamburger" id="customHamburger">
+    <span></span>
+    <span></span>
+    <span></span>
+</div>
+
+<!-- Sidebar -->
+<div class="offcanvas offcanvas-start" tabindex="-1" id="sidebar" aria-labelledby="sidebarLabel">
+    <div class="offcanvas-header">
+        <h5 class="offcanvas-title" id="sidebarLabel">Menu</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body">
+        <ul class="nav flex-column">
+            <li class="nav-item"><a class="nav-link" th:href="@{/suppliers}">Supplier List</a></li>
+            <li class="nav-item"><a class="nav-link" th:href="@{/purchase-invoices}">Accounting</a></li>
+        </ul>
+    </div>
+</div>
