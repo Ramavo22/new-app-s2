@@ -1,8 +1,14 @@
 package mg.itu.newapp.controller;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.servlet.http.HttpSession;
+import mg.itu.newapp.dto.updaterate.UpdateRate;
+import mg.itu.newapp.dto.updaterate.UpdateRateWrapper;
 import mg.itu.newapp.entity.supplier.Supplier;
 import mg.itu.newapp.entity.supplier.SupplierQuotation;
+import mg.itu.newapp.entity.supplier.SupplierQuotationItem;
+import mg.itu.newapp.services.QuotationService;
 import mg.itu.newapp.utils.ApiUtils;
 import mg.itu.newapp.utils.frappe.FrappeResponse;
 import mg.itu.newapp.utils.frappe.FrappeResponseWrapper;
@@ -10,8 +16,8 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.HashMap;
 import java.util.List;
@@ -21,9 +27,13 @@ import java.util.Map;
 public class SupplierController {
 
     private ApiUtils apiUtils;
+    private QuotationService quotationService;
+    private ObjectMapper objectMapper;
 
-    public SupplierController(ApiUtils apiUtils) {
+    public SupplierController(ApiUtils apiUtils, QuotationService quotationService) {
         this.apiUtils = apiUtils;
+        this.quotationService = quotationService;
+        this.objectMapper = new ObjectMapper();
     }
 
     @GetMapping("/suppliers")
@@ -87,5 +97,39 @@ public class SupplierController {
         FrappeResponse<SupplierQuotation> frappeResponse = apiUtils.bodyMessageToFrappeResponse(response, typeRef);
         model.addAttribute("quotation", frappeResponse.getData());
         return "quotation/supplier-quotation-details";
+    }
+
+    @GetMapping("/quotation/details/{ref}")
+    public String updateSupplierQuotationDetailsView(@PathVariable String ref, HttpSession session, Model model) {
+        String sid = (String) session.getAttribute("FRAPPE_CookieHeader");
+        try {
+            SupplierQuotationItem sqItem = quotationService.getItem(ref,sid);
+            model.addAttribute("sqItem", sqItem);
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+        return "quotation/supplier-quotation-items-update";
+    }
+
+    @PostMapping("/quotation/details/{ref}")
+    public String updateSupplierQuotation(@RequestParam("newrate") Double newrate, @PathVariable String ref,
+                                          HttpSession session, RedirectAttributes redirectAttributes) throws Exception {
+        String sid = (String) session.getAttribute("FRAPPE_CookieHeader");
+        quotationService.updateSupplierQuotationItem(ref,newrate,sid);
+        redirectAttributes.addFlashAttribute("message", "Rates updated successfully.");
+        return "redirect:/quotation/d/"+ref;
+
+    }
+
+
+
+    @PostMapping("/quotation/update-all-rates")
+    public String updateAllRates(@ModelAttribute UpdateRateWrapper updateRateWrapper,@RequestParam("quotationName") String quotationName,
+                                 @RequestParam("supplier") String supplier,HttpSession session,RedirectAttributes redirectAttributes) throws Exception {
+        String sid = (String) session.getAttribute("FRAPPE_CookieHeader");
+        quotationService.SubmitSupplierQuotation(updateRateWrapper,quotationName,sid);
+        redirectAttributes.addFlashAttribute("message", "Rates updated successfully.");
+        return "redirect:/quotation/"+supplier+"/"+quotationName;
     }
 }
