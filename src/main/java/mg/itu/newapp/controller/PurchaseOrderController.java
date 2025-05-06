@@ -2,6 +2,7 @@ package mg.itu.newapp.controller;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.servlet.http.HttpSession;
 import mg.itu.newapp.entity.purchaseOrder.PurchaseOrder;
 import mg.itu.newapp.utils.ApiUtils;
 import mg.itu.newapp.utils.frappe.FrappeResponse;
@@ -44,5 +45,13 @@ public class PurchaseOrderController {
         model.addAttribute("purchase_orders", frappeResponse.getData());
 
         return "purchase-order/purchase-order-list";
+    }
+
+    @GetMapping("/purchase-order/{name}/{ref}")
+    public String purchaseOrder(@PathVariable String name, @PathVariable String ref, Model model, HttpSession session) {
+        String sid = (String) session.getAttribute("FRAPPE_CookieHeader");
+
+
+        return "purchase-order/purchase-order-details";
     }
 }
