@@ -3,7 +3,9 @@ package mg.itu.newapp.controller;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpSession;
+import mg.itu.newapp.dto.purchaseorder.PurchaseOrderDetails;
 import mg.itu.newapp.entity.purchaseOrder.PurchaseOrder;
+import mg.itu.newapp.services.PurchaseOrderService;
 import mg.itu.newapp.utils.ApiUtils;
 import mg.itu.newapp.utils.frappe.FrappeResponse;
 import mg.itu.newapp.utils.frappe.FrappeResponseWrapper;
@@ -21,37 +23,28 @@ import java.util.Map;
 @Controller
 public class PurchaseOrderController {
 
+    private PurchaseOrderService purchaseOrderService;
     private ApiUtils apiUtils;
 
-    public PurchaseOrderController(ApiUtils apiUtils) {
+    public PurchaseOrderController(ApiUtils apiUtils,PurchaseOrderService purchaseOrderService) {
+        this.purchaseOrderService = purchaseOrderService;
         this.apiUtils = apiUtils;
     }
 
 
     @GetMapping("/purchase-order/{name}")
     public String index(@PathVariable String name, Model model) {
-        String endPoint = "/api/method/erpnext.buying.doctype.purchase_order.purchase_order_api.getListPurchaseOrderBySupplier?supplier="+name;
-        Map<String,String> headers = new HashMap<>();
-        headers.put("Accept", "application/json");
-        ResponseEntity<String> response = apiUtils.call(
-                endPoint,
-                HttpMethod.GET,
-                null,
-                String.class,
-                headers
-        );
-        TypeReference<FrappeResponseWrapper<List<PurchaseOrder>>> typeRef = new TypeReference<>() {};
-        FrappeResponse<List<PurchaseOrder>> frappeResponse = apiUtils.bodyMessageToFrappeResponse(response,typeRef);
-        model.addAttribute("purchase_orders", frappeResponse.getData());
-
+        String sid = (String) model.getAttribute("FRAPPE_CookieHeader");
+        List<PurchaseOrder> purchaseOrders = purchaseOrderService.getListPurchaseOrders(sid, name);
+        model.addAttribute("purchase_orders", purchaseOrders);
         return "purchase-order/purchase-order-list";
     }
 
     @GetMapping("/purchase-order/{name}/{ref}")
     public String purchaseOrder(@PathVariable String name, @PathVariable String ref, Model model, HttpSession session) {
         String sid = (String) session.getAttribute("FRAPPE_CookieHeader");
-
-
+        PurchaseOrderDetails purchaseOrderDetails = purchaseOrderService.getPurchaseOrderDetails(ref, sid);
+        model.addAttribute("purchaseOrderDetails", purchaseOrderDetails);
         return "purchase-order/purchase-order-details";
     }
 }

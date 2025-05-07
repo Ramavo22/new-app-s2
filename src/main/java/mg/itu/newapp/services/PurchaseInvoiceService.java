@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Service
@@ -19,6 +20,25 @@ public class PurchaseInvoiceService {
 
     public PurchaseInvoiceService(ApiUtils apiUtils) {
         this.apiUtils = apiUtils;
+    }
+
+
+    public List<PurchaseInvoice> getListPurchaseInvoice(String sid){
+        String endPoint = "/api/method/erpnext.accounts.doctype.purchase_invoice.purchase_invoice_api.getListPurchaseInvoice";
+        Map<String, String> headers = new HashMap<>();
+        headers.put("Cookie", sid);
+        headers.put("Accept", "application/json");
+        ResponseEntity<String> response = apiUtils.call(
+                endPoint,
+                HttpMethod.GET,
+                null,
+                String.class,
+                headers
+        );
+
+        TypeReference<FrappeResponseWrapper<List<PurchaseInvoice>>> typeRef = new TypeReference<>() {};
+        FrappeResponse<List<PurchaseInvoice>> frappeResponse = apiUtils.bodyMessageToFrappeResponse(response,typeRef);
+        return  frappeResponse.getData();
     }
 
     public PurchaseInvoice getPurchaseInvoice(String name,String FrappeCookie) throws Exception {

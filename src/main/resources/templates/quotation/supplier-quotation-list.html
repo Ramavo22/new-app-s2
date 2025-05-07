@@ -28,6 +28,9 @@
         </tr>
         </thead>
         <tbody>
+        <tr th:if="${#lists.isEmpty(quotations)}">
+            <td colspan="6" class="text-center">Aucune donnée disponible</td>
+        </tr>
          <tr th:each="quotation : ${quotations}">
              <td th:text="${quotation.name}"></td>
              <td th:text="${quotation.transaction_date}"></td>

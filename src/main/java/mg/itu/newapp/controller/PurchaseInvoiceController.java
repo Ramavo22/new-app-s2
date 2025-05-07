@@ -4,11 +4,8 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import jakarta.servlet.http.HttpSession;
 import mg.itu.newapp.entity.purchaseInvoice.PurchaseInvoice;
 import mg.itu.newapp.services.PaymentEntryService;
+import mg.itu.newapp.services.PurchaseInvoiceService;
 import mg.itu.newapp.utils.ApiUtils;
-import mg.itu.newapp.utils.frappe.FrappeResponse;
-import mg.itu.newapp.utils.frappe.FrappeResponseWrapper;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -24,31 +21,23 @@ public class PurchaseInvoiceController {
 
     private ApiUtils apiUtils;
     private PaymentEntryService paymentEntryService;
+    private PurchaseInvoiceService purchaseInvoiceService;
 
-    public PurchaseInvoiceController(ApiUtils apiUtils, PaymentEntryService paymentEntryService) {
+    public PurchaseInvoiceController(ApiUtils apiUtils, PaymentEntryService paymentEntryService, PurchaseInvoiceService purchaseInvoiceService) {
         this.apiUtils = apiUtils;
         this.paymentEntryService = paymentEntryService;
+        this.purchaseInvoiceService = purchaseInvoiceService;
     }
 
     @GetMapping("/purchase-invoices")
-    public String purchaseInvoice(Model model) {
-        String endPoint = "/api/method/erpnext.accounts.doctype.purchase_invoice.purchase_invoice_api.getListPurchaseInvoice";
-        Map<String, String> headers = new HashMap<>();
-        headers.put("Accept", "application/json");
-
-        ResponseEntity<String> response = apiUtils.call(
-                endPoint,
-                HttpMethod.GET,
-                null,
-                String.class,
-                headers
-        );
-
-        TypeReference<FrappeResponseWrapper<List<PurchaseInvoice>>> typeRef = new TypeReference<>() {};
-        FrappeResponse<List<PurchaseInvoice>> frappeResponse = apiUtils.bodyMessageToFrappeResponse(response,typeRef);
-        model.addAttribute("purchase_invoices", frappeResponse.getData());
+    public String purchaseInvoice(Model model, HttpSession session) {
+        String sid = (String) session.getAttribute("FRAPPE_CookieHeader");
+        List<PurchaseInvoice> purchaseInvoices = purchaseInvoiceService.getListPurchaseInvoice(sid);
+        model.addAttribute("purchase_invoices",purchaseInvoices);
         return "purchase-invoice/purchase-invoice-list";
     }
+
+
     @GetMapping("/purchase-invoice/{ref}/validation")
     public String payPurchaseInvoice(HttpSession session, @PathVariable String ref, RedirectAttributes redirectAttributes) {
         String sid = (String) session.getAttribute("FRAPPE_CookieHeader");

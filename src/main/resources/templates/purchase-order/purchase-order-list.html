@@ -22,6 +22,10 @@
             <th scope="col">total qty</th>
             <th scope="col">net total</th>
             <th scope="col">status</th>
+            <th scope="col">Action</th>
+        </tr>
+        <tr th:if="${#lists.isEmpty(purchase_orders)}">
+            <td colspan="7" class="text-center">Aucune donnée disponible</td>
         </tr>
         <tr th:each="purchase_order : ${purchase_orders}">
             <td th:text="${purchase_order.name}"></td>
@@ -30,6 +34,9 @@
             <td th:text="${purchase_order.total_qty}"></td>
             <td th:text="${purchase_order.net_total}"></td>
             <td th:text="${purchase_order.status}"></td>
+            <td>
+                <a th:href="@{/purchase-order/{name}/{ref}(name=${purchase_order.supplier},ref=${purchase_order.name})}" class="btn btn-primary">See Details</a>
+            </td>
         </tr>
     </table>
 </div>

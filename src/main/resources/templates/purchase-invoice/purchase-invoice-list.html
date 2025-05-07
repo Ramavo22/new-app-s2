@@ -26,6 +26,9 @@
             <th scope="col">status</th>
             <th scope="col">Action</th>
         </tr>
+        <tr th:if="${#lists.isEmpty(purchase_invoices)}">
+            <td colspan="7" class="text-center">Aucune donnée disponible</td>
+        </tr>
         <tr th:each="purchase_invoice : ${purchase_invoices}">
             <td th:text="${purchase_invoice.name}"></td>
             <td th:text="${purchase_invoice.supplier}"></td>

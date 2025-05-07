@@ -58,70 +58,22 @@ public class SupplierController {
     }
 
     @GetMapping("quotation/{name}")
-    public String getSupplierQuotationBySupplier(@PathVariable String name, Model model) {
+    public String getSupplierQuotationBySupplier(@PathVariable String name,HttpSession session, Model model) {
         model.addAttribute("supplier_name", name);
-
-        String endPoint = "/api/method/erpnext.buying.doctype.supplier_quotation.supplier_quotationAPI.getListSupplierQuotationBySupplier?supplier="+name;
-        Map<String,String> headers = new HashMap<>();
-        headers.put("Accept", "application/json");
-
-        ResponseEntity<String> response = apiUtils.call(
-                endPoint,
-                HttpMethod.GET,
-                null,
-                String.class,
-                headers
-        );
-         TypeReference<FrappeResponseWrapper<List<SupplierQuotation>>> typeRef = new TypeReference<>() {};
-         FrappeResponse<List<SupplierQuotation>> frappeResponse = apiUtils.bodyMessageToFrappeResponse(response, typeRef);
-         model.addAttribute("quotations", frappeResponse.getData());
+        String sid = (String) session.getAttribute("FRAPPE_CookieHeader");
+         List<SupplierQuotation> supplierQuotations =   quotationService.getListSupplierQuotations(sid,name);
+         model.addAttribute("quotations", supplierQuotations);
 
         return "quotation/supplier-quotation-list";
     }
 
     @GetMapping("/quotation/{name}/{reference}")
-    public String getSupplierQuotationDetails(@PathVariable String reference,Model model) {
-        String endPoint = "/api/method/erpnext.buying.doctype.supplier_quotation.supplier_quotationAPI.getAllDetailSupplierQuotation?quotation="+reference;
-        Map<String,String> headers = new HashMap<>();
-        headers.put("Accept", "application/json");
-
-        ResponseEntity<String> response = apiUtils.call(
-                endPoint,
-                HttpMethod.GET,
-                null,
-                String.class,
-                headers
-        );
-
-        TypeReference<FrappeResponseWrapper<SupplierQuotation>> typeRef = new TypeReference<>() {};
-        FrappeResponse<SupplierQuotation> frappeResponse = apiUtils.bodyMessageToFrappeResponse(response, typeRef);
-        model.addAttribute("quotation", frappeResponse.getData());
+    public String getSupplierQuotationDetails(@PathVariable String reference,HttpSession session,Model model) {
+        String sid = (String) session.getAttribute("FRAPPE_CookieHeader");
+        SupplierQuotation supplierQuotation = quotationService.getSupplierQuotation(sid,reference);
+        model.addAttribute("quotation", supplierQuotation);
         return "quotation/supplier-quotation-details";
     }
-
-    @GetMapping("/quotation/details/{ref}")
-    public String updateSupplierQuotationDetailsView(@PathVariable String ref, HttpSession session, Model model) {
-        String sid = (String) session.getAttribute("FRAPPE_CookieHeader");
-        try {
-            SupplierQuotationItem sqItem = quotationService.getItem(ref,sid);
-            model.addAttribute("sqItem", sqItem);
-        }
-        catch (Exception e) {
-            e.printStackTrace();
-        }
-        return "quotation/supplier-quotation-items-update";
-    }
-
-    @PostMapping("/quotation/details/{ref}")
-    public String updateSupplierQuotation(@RequestParam("newrate") Double newrate, @PathVariable String ref,
-                                          HttpSession session, RedirectAttributes redirectAttributes) throws Exception {
-        String sid = (String) session.getAttribute("FRAPPE_CookieHeader");
-        quotationService.updateSupplierQuotationItem(ref,newrate,sid);
-        redirectAttributes.addFlashAttribute("message", "Rates updated successfully.");
-        return "redirect:/quotation/d/"+ref;
-
-    }
-
 
 
     @PostMapping("/quotation/update-all-rates")

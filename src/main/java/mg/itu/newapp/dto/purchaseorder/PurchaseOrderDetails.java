@@ -26,6 +26,9 @@ public class PurchaseOrderDetails {
     @JsonProperty("per_billed")
     private double perBilled;
 
+    @JsonProperty("per_received")
+    private double perReceived;
+
     @JsonProperty("payment_status")
     private String paymentStatus;
 

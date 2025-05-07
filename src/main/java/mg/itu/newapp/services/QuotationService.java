@@ -5,8 +5,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import mg.itu.newapp.dto.updaterate.UpdateRate;
 import mg.itu.newapp.dto.ressources.FrappeRessource;
 import mg.itu.newapp.dto.updaterate.UpdateRateWrapper;
+import mg.itu.newapp.entity.supplier.SupplierQuotation;
 import mg.itu.newapp.entity.supplier.SupplierQuotationItem;
 import mg.itu.newapp.utils.ApiUtils;
+import mg.itu.newapp.utils.frappe.FrappeResponse;
+import mg.itu.newapp.utils.frappe.FrappeResponseWrapper;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -24,6 +27,47 @@ public class QuotationService {
     public QuotationService(ApiUtils apiUtils, ObjectMapper objectMapper) {
         this.apiUtils = apiUtils;
         this.objectMapper = objectMapper;
+    }
+
+
+    public List<SupplierQuotation> getListSupplierQuotations(String sid,String name) {
+        String endPoint = "/api/method/erpnext.buying.doctype.supplier_quotation.supplier_quotationAPI.getListSupplierQuotationBySupplier?supplier="+name;
+        Map<String,String> headers = new HashMap<>();
+        headers.put("Accept", "application/json");
+        headers.put("Content-Type", "application/json");
+        headers.put("Cookie",sid);
+
+        ResponseEntity<String> response = apiUtils.call(
+                endPoint,
+                HttpMethod.GET,
+                null,
+                String.class,
+                headers
+        );
+        TypeReference<FrappeResponseWrapper<List<SupplierQuotation>>> typeRef = new TypeReference<>() {};
+        FrappeResponse<List<SupplierQuotation>> frappeResponse = apiUtils.bodyMessageToFrappeResponse(response, typeRef);
+        return frappeResponse.getData();
+    }
+
+    public SupplierQuotation getSupplierQuotation(String sid,String name) {
+
+        String endPoint = "/api/method/erpnext.buying.doctype.supplier_quotation.supplier_quotationAPI.getAllDetailSupplierQuotation?quotation="+name;
+        Map<String,String> headers = new HashMap<>();
+        headers.put("Accept", "application/json");
+        headers.put("Content-Type", "application/json");
+        headers.put("Cookie",sid);
+
+        ResponseEntity<String> response = apiUtils.call(
+                endPoint,
+                HttpMethod.GET,
+                null,
+                String.class,
+                headers
+        );
+
+        TypeReference<FrappeResponseWrapper<SupplierQuotation>> typeRef = new TypeReference<>() {};
+        FrappeResponse<SupplierQuotation> frappeResponse = apiUtils.bodyMessageToFrappeResponse(response, typeRef);
+        return frappeResponse.getData();
     }
 
 
